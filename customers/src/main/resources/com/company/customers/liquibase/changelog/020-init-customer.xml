@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd"
+        objectQuotingStrategy="QUOTE_ONLY_RESERVED_WORDS">
+    <changeSet id="1" author="customers">
+        <createTable tableName="CONTACT">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_CONTACT"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CONTACT_TYPE" type="VARCHAR(1)"/>
+            <column name="CONTACT_VALUE" type="VARCHAR(255)"/>
+            <column name="PREFERRED" type="BOOLEAN"/>
+            <column name="CUSTOMER_ID" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="2" author="customers">
+        <createTable tableName="CUSTOMER">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_CUSTOMER"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="EMAIL" type="VARCHAR(255)"/>
+            <column name="REGION_ID" type="UUID"/>
+            <column name="ADDRESS_CITY" type="VARCHAR(255)"/>
+            <column name="ADDRESS_POST_CODE" type="VARCHAR(255)"/>
+            <column name="ADDRESS_ADDRESS_LINE" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="3" author="customers">
+        <createTable tableName="REGION">
+            <column name="ID" type="UUID">
+                <constraints nullable="false" primaryKey="true" primaryKeyName="PK_REGION"/>
+            </column>
+            <column name="VERSION" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="4" author="customers">
+        <createIndex indexName="IDX_CONTACT_CUSTOMER" tableName="CONTACT">
+            <column name="CUSTOMER_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="CUSTOMER_ID" baseTableName="CONTACT"
+                                 constraintName="FK_CONTACT_ON_CUSTOMER" onDelete="CASCADE" referencedColumnNames="ID"
+                                 referencedTableName="CUSTOMER"/>
+    </changeSet>
+    <changeSet id="5" author="customers">
+        <createIndex indexName="IDX_CUSTOMER_REGION" tableName="CUSTOMER">
+            <column name="REGION_ID"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="REGION_ID" baseTableName="CUSTOMER"
+                                 constraintName="FK_CUSTOMER_ON_REGION" referencedColumnNames="ID"
+                                 referencedTableName="REGION"/>
+    </changeSet>
+</databaseChangeLog>
