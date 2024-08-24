@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://contactDetailView.title"
+      focusComponent="form">
+    <data>
+        <instance id="contactDc"
+                  class="com.company.orders.entity.customers.Contact">
+            <loader id="contactDl"/>
+        </instance>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <actions>
+        <action id="saveAction" type="detail_saveClose"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+    <layout>
+        <formLayout id="form" dataContainer="contactDc">
+            <select id="contactTypeField" property="contactType"/>
+            <textField id="contactValueField" property="contactValue"/>
+            <checkbox id="preferredField" property="preferred"/>
+        </formLayout>
+        <hbox id="detailActions">
+            <button id="saveAndCloseButton" action="saveAction"/>
+            <button id="closeButton" action="closeAction"/>
+        </hbox>
+    </layout>
+</view>

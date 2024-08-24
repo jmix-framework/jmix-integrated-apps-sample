@@ -1,17 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <view xmlns="http://jmix.io/schema/flowui/view"
-      xmlns:c="http://jmix.io/schema/flowui/jpql-condition"
-      title="msg://simpleCustomerListView.title"
-      focusComponent="simpleCustomersDataGrid">
+      title="msg://customerListView.title"
+      focusComponent="customersDataGrid">
     <data>
-        <collection id="simpleCustomersDc"
-                    class="com.company.orders.entity.SimpleCustomer">
-            <fetchPlan extends="_base"/>
-            <loader id="simpleCustomersDl" readOnly="true">
-                <query>
-                    <![CDATA[select e from SimpleCustomer e]]>
-                </query>
-            </loader>
+        <collection id="customersDc"
+                    class="com.company.orders.entity.customers.Customer">
+            <loader id="customersDl" readOnly="true"/>
         </collection>
     </data>
     <facets>
@@ -26,27 +20,25 @@
     </actions>
     <layout>
         <hbox id="buttonsPanel" classNames="buttons-panel">
-            <button id="importButton" text="Import from Customers app" themeNames="primary"/>
-            <button id="editButton" action="simpleCustomersDataGrid.edit"/>
-            <button id="removeButton" action="simpleCustomersDataGrid.remove"/>
-            <simplePagination id="pagination" dataLoader="simpleCustomersDl"/>
+            <button id="createButton" action="customersDataGrid.create"/>
+            <button id="editButton" action="customersDataGrid.edit"/>
+            <button id="removeButton" action="customersDataGrid.remove"/>
+            <simplePagination id="pagination" dataLoader="customersDl"/>
         </hbox>
-        <dataGrid id="simpleCustomersDataGrid"
+        <dataGrid id="customersDataGrid"
                   width="100%"
                   minHeight="20em"
-                  dataContainer="simpleCustomersDc"
+                  dataContainer="customersDc"
                   columnReorderingAllowed="true">
             <actions>
+                <action id="create" type="list_create"/>
                 <action id="edit" type="list_edit"/>
                 <action id="remove" type="list_remove"/>
             </actions>
             <columns resizable="true">
                 <column property="name"/>
                 <column property="email"/>
-                <column property="regionName"/>
-                <column property="addressText"/>
-                <column property="preferredContact"/>
-                <column property="externalId"/>
+                <column property="region"/>
             </columns>
         </dataGrid>
         <hbox id="lookupActions" visible="false">

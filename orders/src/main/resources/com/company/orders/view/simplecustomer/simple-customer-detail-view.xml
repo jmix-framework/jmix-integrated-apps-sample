@@ -23,7 +23,7 @@
             <textField id="regionNameField" property="regionName"/>
             <textField id="addressTextField" property="addressText"/>
             <textField id="preferredContactField" property="preferredContact"/>
-            <textField id="externalIdField" property="externalId"/>
+            <textField id="externalIdField" property="externalId" enabled="false"/>
         </formLayout>
         <hbox id="detailActions">
             <button id="saveAndCloseButton" action="saveAction"/>

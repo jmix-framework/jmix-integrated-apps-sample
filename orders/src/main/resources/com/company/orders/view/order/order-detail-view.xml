@@ -24,12 +24,19 @@
         <formLayout id="form" dataContainer="orderDc">
             <textField id="numField" property="num"/>
             <datePicker id="dateField" property="date"/>
-            <entityPicker id="customerField" property="customer">
+            <entityComboBox id="customerField" property="customer">
+                <itemsQuery class="com.company.orders.entity.SimpleCustomer" escapeValueForLike="true"
+                            searchStringFormat="(?i)%${inputString}%">
+                    <fetchPlan extends="_base"/>
+                    <query>
+                        <![CDATA[select e from SimpleCustomer e where e.name like :searchString escape '\' order by e.name]]>
+                    </query>
+                </itemsQuery>
                 <actions>
                     <action id="entityLookup" type="entity_lookup"/>
                     <action id="entityClear" type="entity_clear"/>
                 </actions>
-            </entityPicker>
+            </entityComboBox>
         </formLayout>
         <h4 text="msg://com.company.orders.entity/Order.lines"/>
         <hbox id="buttonsPanel" classNames="buttons-panel">
