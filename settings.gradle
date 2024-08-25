@@ -1,4 +1,4 @@
-rootProject.name = 'jmix-store-integrated-apps-all'
+rootProject.name = 'jmix-store-integrated-apps'
 
 includeBuild 'customers'
 includeBuild 'orders'
