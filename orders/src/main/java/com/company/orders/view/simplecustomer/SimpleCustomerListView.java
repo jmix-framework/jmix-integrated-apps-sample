@@ -1,22 +1,28 @@
 package com.company.orders.view.simplecustomer;
 
 import com.company.orders.entity.SimpleCustomer;
-import com.company.orders.entity.customers.Address;
-import com.company.orders.entity.customers.Contact;
 import com.company.orders.entity.customers.Customer;
 import com.company.orders.view.main.MainView;
-import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.router.Route;
-import io.jmix.core.DataManager;
+import com.vaadin.flow.router.RouteConfiguration;
+import io.jmix.core.Id;
 import io.jmix.flowui.DialogWindows;
+import io.jmix.flowui.Dialogs;
 import io.jmix.flowui.Notifications;
-import io.jmix.flowui.kit.component.button.JmixButton;
+import io.jmix.flowui.UiEventPublisher;
+import io.jmix.flowui.action.DialogAction;
+import io.jmix.flowui.component.grid.DataGrid;
+import io.jmix.flowui.kit.action.BaseAction;
+import io.jmix.flowui.kit.component.dropdownbutton.DropdownButtonItem;
 import io.jmix.flowui.model.CollectionLoader;
 import io.jmix.flowui.view.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 
 import java.util.Collection;
-import java.util.Set;
+import java.util.UUID;
 
 
 @Route(value = "simpleCustomers", layout = MainView.class)
@@ -27,58 +33,92 @@ import java.util.Set;
 public class SimpleCustomerListView extends StandardListView<SimpleCustomer> {
 
     @Autowired
+    private CustomerImporter customerImporter;
+    @Autowired
     private DialogWindows dialogWindows;
     @Autowired
-    private DataManager dataManager;
+    private Notifications notifications;
+    @Autowired
+    private Dialogs dialogs;
+    @Autowired
+    private UiEventPublisher uiEventPublisher;
 
     @ViewComponent
     private CollectionLoader<SimpleCustomer> simpleCustomersDl;
-    @Autowired
-    private Notifications notifications;
+    @ViewComponent
+    private DataGrid<SimpleCustomer> simpleCustomersDataGrid;
 
-    @Subscribe(id = "importButton", subject = "clickListener")
-    public void onImportButtonClick(final ClickEvent<JmixButton> event) {
+    @Value("${customers.baseUrl}")
+    private String customersBaseUrl;
+
+    @Subscribe("importButton.showExternalEntitiesItem")
+    public void onImportButtonShowExternalEntitiesItemClick(final DropdownButtonItem.ClickEvent event) {
+        // Show Customer DTO list view for looking up a customer and importing it
         dialogWindows.lookup(this, Customer.class)
                 .withSelectHandler(this::importCustomers)
                 .open();
     }
 
+    @Subscribe("importButton.openExternalAppItem")
+    public void onImportButtonOpenExternalAppItemClick(final DropdownButtonItem.ClickEvent event) {
+        // Open the Customers application with the customers list in a new tab and
+        // provide a URL parameter to redirect back to this view
+        String url = customersBaseUrl + "/customers/new?redirectTo=orders.simpleCustomers";
+        UI.getCurrent().getPage().executeJs("window.open('" + url + "', '_blank');");
+    }
+
+    @Subscribe
+    public void onQueryParametersChange(final QueryParametersChangeEvent event) {
+        // When redirecting from the Customers app back, the URL contains the "importCustomer"
+        // parameter with the ID of the customer to import
+        event.getQueryParameters().getSingleParameter("importCustomer").ifPresent(param -> {
+            Id<Customer> customerId = Id.of(UUID.fromString(param), Customer.class);
+            SimpleCustomer importedCustomer = importCustomer(customerId);
+
+            String thisUrl = RouteConfiguration.forSessionScope().getUrl(this.getClass());
+            UI.getCurrent().getPage().getHistory().replaceState(null, thisUrl);
+
+            // Show a success notification and close the browser window
+            dialogs.createOptionDialog()
+                    .withText("Successfully imported '" + importedCustomer.getName() + "'")
+                    .withActions(
+                            new DialogAction(DialogAction.Type.OK)
+                                    .withText("Close and select")
+                                    .withHandler(actionPerformedEvent ->
+                                            closeBrowserWindowAndNotify(importedCustomer)),
+                            new BaseAction("continue")
+                                    .withText("Continue")
+                    )
+                    .open();
+        });
+    }
+
     private void importCustomers(Collection<Customer> customers) {
         for (Customer customer : customers) {
-            Customer fullCustomer = dataManager.load(Customer.class)
-                    .id(customer.getId())
-                    .fetchPlan("customer-full")
-                    .one();
-
-            SimpleCustomer simpleCustomer = dataManager.load(SimpleCustomer.class)
-                    .query("e.externalId = ?1", customer.getId())
-                    .optional()
-                    .orElseGet(() -> {
-                        SimpleCustomer sc = dataManager.create(SimpleCustomer.class);
-                        sc.setExternalId(fullCustomer.getId());
-                        return sc;
-                    });
-            simpleCustomer.setName(fullCustomer.getName());
-            simpleCustomer.setEmail(fullCustomer.getEmail());
-            simpleCustomer.setRegionName(fullCustomer.getRegion().getName());
-            simpleCustomer.setAddressText(formatAddressText(fullCustomer.getAddress()));
-            simpleCustomer.setPreferredContact(formatPreferredContact(fullCustomer.getContacts()));
-
-            dataManager.save(simpleCustomer);
+            importCustomer(Id.of(customer));
         }
         simpleCustomersDl.load();
         notifications.create("Imported successfully").show();
     }
 
-    private String formatAddressText(Address address) {
-        return address.getCity() + ", " + address.getPostCode() + ", " + address.getAddressLine();
+    private SimpleCustomer importCustomer(Id<Customer> customerId) {
+        // Delegate to the CustomerImporter bean to import the customer
+        return customerImporter.importCustomer(customerId);
     }
 
-    private String formatPreferredContact(Set<Contact> contacts) {
-        return contacts.stream()
-                .filter(contact -> Boolean.TRUE.equals(contact.getPreferred()))
-                .findFirst()
-                .map(contact -> contact.getContactType() + ": " + contact.getContactValue())
-                .orElse("");
+    private void closeBrowserWindowAndNotify(SimpleCustomer importedCustomer) {
+        // Close the browser window and notify the UI about the imported customer
+        UI.getCurrent().getPage().executeJs("window.close();");
+        uiEventPublisher.publishEvent(new SelectCustomerEvent(this, importedCustomer));
+    }
+
+    @EventListener
+    private void onSelectImportedCustomer(final SelectCustomerEvent event) {
+        // If a customer was imported by another instance of this view,
+        // select it and return to the calling view
+        getSelectAction().ifPresent(action -> {
+            simpleCustomersDataGrid.select(event.getCustomer());
+            action.actionPerform(this);
+        });
     }
 }

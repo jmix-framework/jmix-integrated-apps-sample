@@ -26,9 +26,15 @@
     </actions>
     <layout>
         <hbox id="buttonsPanel" classNames="buttons-panel">
-            <button id="importButton" text="Import from Customers app" themeNames="primary"/>
+            <dropdownButton id="importButton" text="Import customers..." themeNames="primary">
+                <items>
+                    <textItem id="showExternalEntitiesItem" text="Show external entities in this app"/>
+                    <textItem id="openExternalAppItem" text="Open external app"/>
+                </items>
+            </dropdownButton>
             <button id="editButton" action="simpleCustomersDataGrid.edit"/>
             <button id="removeButton" action="simpleCustomersDataGrid.remove"/>
+            <button id="refreshButton" action="simpleCustomersDataGrid.refresh"/>
             <simplePagination id="pagination" dataLoader="simpleCustomersDl"/>
         </hbox>
         <dataGrid id="simpleCustomersDataGrid"
@@ -39,6 +45,7 @@
             <actions>
                 <action id="edit" type="list_edit"/>
                 <action id="remove" type="list_remove"/>
+                <action id="refresh" type="list_refresh"/>
             </actions>
             <columns resizable="true">
                 <column property="name"/>
