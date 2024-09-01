@@ -1,0 +1,5 @@
+<fetchPlans xmlns="http://jmix.io/schema/core/fetch-plans">
+    <fetchPlan entity="Product" name="product-full" extends="_base">
+        <property name="category" fetchPlan="_base"/>
+    </fetchPlan>
+</fetchPlans>

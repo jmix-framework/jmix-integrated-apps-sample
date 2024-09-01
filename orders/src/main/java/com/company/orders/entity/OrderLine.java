@@ -1,9 +1,12 @@
 package com.company.orders.entity;
 
+import com.company.orders.entity.products.Product;
 import io.jmix.core.DeletePolicy;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
 import io.jmix.core.entity.annotation.OnDeleteInverse;
+import io.jmix.core.metamodel.annotation.DependsOnProperties;
 import io.jmix.core.metamodel.annotation.JmixEntity;
+import io.jmix.core.metamodel.annotation.JmixProperty;
 import jakarta.persistence.*;
 
 import java.util.UUID;
@@ -21,10 +24,35 @@ public class OrderLine {
 
     @Column(name = "QUANTITY")
     private Double quantity;
+
+    @Column(name = "PRODUCT_ID")
+    private UUID productId;
+
+    @JmixProperty
+    @Transient
+    @DependsOnProperties("productId")
+    private Product product;
+
     @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "ORDER_ID", nullable = false)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     private Order order;
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public UUID getProductId() {
+        return productId;
+    }
+
+    public void setProductId(UUID productId) {
+        this.productId = productId;
+    }
 
     public Order getOrder() {
         return order;

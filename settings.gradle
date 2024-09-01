@@ -2,3 +2,4 @@ rootProject.name = 'jmix-store-integrated-apps'
 
 includeBuild 'customers'
 includeBuild 'orders'
+includeBuild 'products'

@@ -7,7 +7,7 @@
                   class="com.company.orders.entity.Order">
             <fetchPlan extends="_base">
                 <property name="customer" fetchPlan="_base"/>
-                <property name="lines" fetchPlan="_base"/>
+                <property name="lines" fetchPlan="orderLine-with-product"/>
             </fetchPlan>
             <loader id="orderDl"/>
             <collection id="linesDc" property="lines"/>
@@ -59,6 +59,8 @@
                 <action id="remove" type="list_remove"/>
             </actions>
             <columns>
+                <column property="product.name"/>
+                <column property="product.price"/>
                 <column property="quantity"/>
             </columns>
         </dataGrid>

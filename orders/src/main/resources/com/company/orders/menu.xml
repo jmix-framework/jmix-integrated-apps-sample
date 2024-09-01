@@ -6,6 +6,9 @@
         <item view="SimpleCustomer.list"
               title="msg://com.company.orders.view.simplecustomer/simpleCustomerListView.title"/>
         <item view="Order_.list" title="msg://com.company.orders.view.order/orderListView.title"/>
+        <item view="ProductCategory.list"
+              title="msg://com.company.orders.view.products.productcategory/productCategoryListView.title"/>
+        <item view="Product.list" title="msg://com.company.orders.view.products.product/productListView.title"/>
     </menu>
 
 </menu-config>

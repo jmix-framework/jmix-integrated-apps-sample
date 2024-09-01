@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://orderLineDetailView.title"
+      focusComponent="form">
+    <data>
+        <instance id="orderLineDc"
+                  class="com.company.orders.entity.OrderLine">
+            <fetchPlan extends="_base">
+                <property name="product" fetchPlan="_base"/>
+            </fetchPlan>
+            <loader id="orderLineDl"/>
+        </instance>
+    </data>
+    <facets>
+        <dataLoadCoordinator auto="true"/>
+    </facets>
+    <actions>
+        <action id="saveAction" type="detail_saveClose"/>
+        <action id="closeAction" type="detail_close"/>
+    </actions>
+    <layout>
+        <formLayout id="form" dataContainer="orderLineDc">
+            <entityComboBox id="productField" property="product">
+                <itemsQuery class="com.company.orders.entity.products.Product"
+                            searchStringFormat="${inputString}">
+                    <query>
+                        <![CDATA[
+                        {
+                          "property": "name",
+                          "operator": "contains",
+                          "parameterName": "searchString"
+                        }
+                        ]]>
+                    </query>
+                </itemsQuery>
+                <actions>
+                    <action id="entityLookup" type="entity_lookup"/>
+                    <action id="entityClear" type="entity_clear"/>
+                </actions>
+            </entityComboBox>
+            <textField id="priceField" dataContainer="orderLineDc" property="product.price" readOnly="true"/>
+            <textField id="quantityField" property="quantity"/>
+        </formLayout>
+        <hbox id="detailActions">
+            <button id="saveAndCloseButton" action="saveAction"/>
+            <button id="closeButton" action="closeAction"/>
+        </hbox>
+    </layout>
+</view>
