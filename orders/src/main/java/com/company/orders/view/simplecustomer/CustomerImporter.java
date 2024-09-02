@@ -34,7 +34,7 @@ public class CustomerImporter {
                 });
         simpleCustomer.setName(fullCustomer.getName());
         simpleCustomer.setEmail(fullCustomer.getEmail());
-        simpleCustomer.setRegionName(fullCustomer.getRegion().getName());
+        simpleCustomer.setRegionName(fullCustomer.getRegion() == null ? null : fullCustomer.getRegion().getName());
         simpleCustomer.setAddressText(formatAddressText(fullCustomer.getAddress()));
         simpleCustomer.setPreferredContact(formatPreferredContact(fullCustomer.getContacts()));
 
