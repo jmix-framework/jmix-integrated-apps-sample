@@ -40,6 +40,7 @@
             </entityComboBox>
             <textField id="priceField" dataContainer="orderLineDc" property="product.price" readOnly="true"/>
             <textField id="quantityField" property="quantity"/>
+            <button id="availableBtn" text="Check availability"/>
         </formLayout>
         <hbox id="detailActions">
             <button id="saveAndCloseButton" action="saveAction"/>
