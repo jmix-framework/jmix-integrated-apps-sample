@@ -4,6 +4,7 @@ import com.company.products.entity.Product;
 import io.jmix.rest.annotation.RestMethod;
 import io.jmix.rest.annotation.RestService;
 
+// tag::service[]
 @RestService("InventoryService")
 public class InventoryService {
 
@@ -12,3 +13,4 @@ public class InventoryService {
         return (double) Math.round(Math.random() * 100);
     }
 }
+// end::service[]

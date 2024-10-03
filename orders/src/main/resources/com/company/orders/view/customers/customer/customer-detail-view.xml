@@ -24,6 +24,7 @@
             <textField id="cityField" property="address.city"/>
             <textField id="postCodeField" property="address.postCode"/>
             <textField id="addressLineField" property="address.addressLine"/>
+            <!-- tag::query[] -->
             <entityComboBox id="regionField" property="region">
                 <itemsQuery class="com.company.orders.entity.customers.Region"
                             searchStringFormat="${inputString}">
@@ -42,6 +43,7 @@
                     <action id="entityClear" type="entity_clear"/>
                 </actions>
             </entityComboBox>
+            <!-- end::query[] -->
         </formLayout>
         <h4 text="msg://com.company.orders.entity.customers/Customer.contacts"/>
         <hbox id="buttonsPanel" classNames="buttons-panel">

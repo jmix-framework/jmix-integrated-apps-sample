@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Set;
 import java.util.UUID;
 
+// tag::entity[]
 @JmixEntity
 @Table(name = "CUSTOMER", indexes = {
         @Index(name = "IDX_CUSTOMER_REGION", columnList = "REGION_ID")
@@ -52,6 +53,9 @@ public class Customer {
     @Composition
     @OneToMany(mappedBy = "customer")
     private Set<Contact> contacts;
+
+    // getters and setters
+    // end::entity[]
 
     public Set<Contact> getContacts() {
         return contacts;

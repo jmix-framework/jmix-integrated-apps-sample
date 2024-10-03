@@ -14,6 +14,7 @@ import org.springframework.core.env.Environment;
 @EditedEntityContainer("customerDc")
 public class CustomerDetailView extends StandardDetailView<Customer> {
 
+    // tag::export[]
     private String redirectTo;
 
     @Autowired
@@ -35,4 +36,5 @@ public class CustomerDetailView extends StandardDetailView<Customer> {
             UI.getCurrent().getPage().setLocation(baseUrl + "?importCustomer=" + getEditedEntity().getId());
         }
     }
+    // end::export[]
 }

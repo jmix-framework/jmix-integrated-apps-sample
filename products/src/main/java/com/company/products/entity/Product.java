@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.UUID;
 
+// tag::entity[]
 @JmixEntity
 @Table(name = "PRODUCT")
 @Entity
@@ -33,6 +34,9 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CATEGORY_ID")
     private ProductCategory category;
+
+    // getters and setters
+    // end::entity[]
 
     public void setCategory(ProductCategory category) {
         this.category = category;

@@ -9,6 +9,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
+// tag::exception-handler[]
 @Component
 public class RestDataStoreAccessExceptionHandler extends AbstractUiExceptionHandler {
 
@@ -33,3 +34,4 @@ public class RestDataStoreAccessExceptionHandler extends AbstractUiExceptionHand
         }
     }
 }
+// end::exception-handler[]

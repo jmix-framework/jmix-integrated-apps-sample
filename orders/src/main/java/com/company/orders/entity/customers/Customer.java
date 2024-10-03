@@ -14,7 +14,8 @@ import jakarta.validation.constraints.NotNull;
 import java.util.Set;
 import java.util.UUID;
 
-@Store(name = "customers")
+// tag::entity[]
+@Store(name = "customers") // <1>
 @JmixEntity
 public class Customer {
     @JmixGeneratedValue
@@ -30,14 +31,17 @@ public class Customer {
     @Email
     private String email;
 
-    @JmixEmbedded
+    @JmixEmbedded // <2>
     @EmbeddedParameters(nullAllowed = false)
     private Address address;
 
     private Region region;
 
-    @Composition(inverse = "customer")
+    @Composition(inverse = "customer") // <3>
     private Set<Contact> contacts;
+
+    // getters and setters
+    // end::entity[]
 
     public Set<Contact> getContacts() {
         return contacts;

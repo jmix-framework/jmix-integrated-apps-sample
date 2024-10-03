@@ -2,12 +2,14 @@
 <view xmlns="http://jmix.io/schema/flowui/view"
       title="msg://customerListView.title"
       focusComponent="customersDataGrid">
+    <!-- tag::loader[] -->
     <data>
         <collection id="customersDc"
                     class="com.company.orders.entity.customers.Customer">
             <loader id="customersDl" readOnly="true"/>
         </collection>
     </data>
+    <!-- end::loader[] -->
     <facets>
         <dataLoadCoordinator auto="true"/>
         <urlQueryParameters>

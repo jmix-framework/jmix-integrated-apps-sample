@@ -3,10 +3,10 @@
         <property name="region" fetchPlan="_base"/>
         <property name="contacts" fetchPlan="_base"/>
     </fetchPlan>
-    <fetchPlan entity="OrderLine" name="orderLine-with-product" extends="_base">
-        <property name="product" fetchPlan="_base"/>
-    </fetchPlan>
     <fetchPlan entity="Product" name="product-full" extends="_base">
         <property name="category" fetchPlan="_base"/>
+    </fetchPlan>
+    <fetchPlan entity="OrderLine" name="orderLine-with-product" extends="_base">
+        <property name="product" fetchPlan="_base"/>
     </fetchPlan>
 </fetchPlans>

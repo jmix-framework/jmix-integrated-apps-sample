@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
+// tag::import[]
 @Component
 public class CustomerImporter {
 
@@ -55,3 +56,4 @@ public class CustomerImporter {
     }
 
 }
+// end::import[]

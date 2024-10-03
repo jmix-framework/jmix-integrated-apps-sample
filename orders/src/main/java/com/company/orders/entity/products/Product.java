@@ -9,7 +9,8 @@ import io.jmix.core.metamodel.annotation.Store;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Store(name = "products")
+// tag::entity[]
+@Store(name = "products") // <1>
 @JmixEntity
 public class Product {
     @JmixGeneratedValue
@@ -24,6 +25,9 @@ public class Product {
     private BigDecimal price;
 
     private ProductCategory category;
+
+    // getters and setters
+    // end::entity[]
 
     public void setCategory(ProductCategory category) {
         this.category = category;

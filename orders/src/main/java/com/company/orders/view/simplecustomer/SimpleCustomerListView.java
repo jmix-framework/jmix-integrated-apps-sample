@@ -32,25 +32,45 @@ import java.util.UUID;
 @DialogMode(width = "64em")
 public class SimpleCustomerListView extends StandardListView<SimpleCustomer> {
 
+    // tag::import[]
     @Autowired
     private CustomerImporter customerImporter;
+
+    // end::import[]
+
+    // tag::import-using-dto-views[]
     @Autowired
     private DialogWindows dialogWindows;
+
+    // end::import-using-dto-views[]
+
     @Autowired
     private Notifications notifications;
     @Autowired
     private Dialogs dialogs;
+
+    // tag::import-using-redirects-2[]
     @Autowired
     private UiEventPublisher uiEventPublisher;
 
+    // end::import-using-redirects-2[]
+
     @ViewComponent
     private CollectionLoader<SimpleCustomer> simpleCustomersDl;
+
+    // tag::import-using-redirects-3[]
     @ViewComponent
     private DataGrid<SimpleCustomer> simpleCustomersDataGrid;
 
+    // end::import-using-redirects-3[]
+
+    // tag::import-using-redirects[]
     @Value("${customers.baseUrl}")
     private String customersBaseUrl;
 
+    // end::import-using-redirects[]
+
+    // tag::import-using-dto-views[]
     @Subscribe("importButton.showExternalEntitiesItem")
     public void onImportButtonShowExternalEntitiesItemClick(final DropdownButtonItem.ClickEvent event) {
         // Show Customer DTO list view for looking up a customer and importing it
@@ -59,6 +79,17 @@ public class SimpleCustomerListView extends StandardListView<SimpleCustomer> {
                 .open();
     }
 
+    private void importCustomers(Collection<Customer> customers) {
+        for (Customer customer : customers) {
+            importCustomer(Id.of(customer));
+        }
+        simpleCustomersDl.load();
+        notifications.create("Imported successfully").show();
+    }
+
+    // end::import-using-dto-views[]
+
+    // tag::import-using-redirects[]
     @Subscribe("importButton.openExternalAppItem")
     public void onImportButtonOpenExternalAppItemClick(final DropdownButtonItem.ClickEvent event) {
         // Open the Customers application with the customers list in a new tab and
@@ -67,6 +98,9 @@ public class SimpleCustomerListView extends StandardListView<SimpleCustomer> {
         UI.getCurrent().getPage().executeJs("window.open('" + url + "', '_blank');");
     }
 
+    // end::import-using-redirects[]
+
+    // tag::import-using-redirects-2[]
     @Subscribe
     public void onQueryParametersChange(final QueryParametersChangeEvent event) {
         // When redirecting from the Customers app back, the URL contains the "importCustomer"
@@ -93,25 +127,25 @@ public class SimpleCustomerListView extends StandardListView<SimpleCustomer> {
         });
     }
 
-    private void importCustomers(Collection<Customer> customers) {
-        for (Customer customer : customers) {
-            importCustomer(Id.of(customer));
-        }
-        simpleCustomersDl.load();
-        notifications.create("Imported successfully").show();
-    }
+    // end::import-using-redirects-2[]
 
+    // tag::import[]
     private SimpleCustomer importCustomer(Id<Customer> customerId) {
         // Delegate to the CustomerImporter bean to import the customer
         return customerImporter.importCustomer(customerId);
     }
 
+    // end::import[]
+
+    // tag::import-using-redirects-2[]
     private void closeBrowserWindowAndNotify(SimpleCustomer importedCustomer) {
         // Close the browser window and notify the UI about the imported customer
         UI.getCurrent().getPage().executeJs("window.close();");
         uiEventPublisher.publishEvent(new SelectCustomerEvent(this, importedCustomer));
     }
+    // end::import-using-redirects-2[]
 
+    // tag::import-using-redirects-3[]
     @EventListener
     private void onSelectImportedCustomer(final SelectCustomerEvent event) {
         // If a customer was imported by another instance of this view,
@@ -121,4 +155,5 @@ public class SimpleCustomerListView extends StandardListView<SimpleCustomer> {
             action.actionPerform(this);
         });
     }
+    // end::import-using-redirects-3[]
 }

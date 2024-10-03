@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+// tag::service[]
 @Component
 public class InventoryService {
 
@@ -33,3 +34,4 @@ public class InventoryService {
         return Double.valueOf(result);
     }
 }
+// end::service[]
