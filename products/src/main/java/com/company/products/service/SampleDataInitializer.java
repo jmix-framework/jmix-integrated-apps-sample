@@ -52,13 +52,13 @@ public class SampleDataInitializer {
         Product product1 = dataManager.create(Product.class);
         product1.setName("iPhone 15");
         product1.setPrice(BigDecimal.valueOf(1000));
-        product1.setCategory(categories.getFirst());
+        product1.setCategory(categories.get(0));
         dataManager.save(product1);
 
         Product product2 = dataManager.create(Product.class);
         product2.setName("Galaxy S24");
         product2.setPrice(BigDecimal.valueOf(900));
-        product2.setCategory(categories.getFirst());
+        product2.setCategory(categories.get(0));
         dataManager.save(product2);
 
         log.info("Products created");

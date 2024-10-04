@@ -50,7 +50,7 @@ public class SampleDataInitializer {
         Customer customer = dataManager.create(Customer.class);
         customer.setName("Robert Taylor");
         customer.setEmail("robert@example.com");
-        customer.setRegion(regions.getFirst());
+        customer.setRegion(regions.get(0));
 
         // create and save two customer contacts
         Contact contact1 = dataManager.create(Contact.class);
