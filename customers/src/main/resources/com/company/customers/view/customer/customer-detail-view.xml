@@ -47,7 +47,7 @@
             <button action="contactsDataGrid.edit"/>
             <button action="contactsDataGrid.remove"/>
         </hbox>
-        <dataGrid id="contactsDataGrid" dataContainer="contactsDc" width="100%" minHeight="20em">
+        <dataGrid id="contactsDataGrid" dataContainer="contactsDc" width="100%" minHeight="10em">
             <actions>
                 <action id="create" type="list_create">
                     <properties>
