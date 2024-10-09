@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 
 import java.util.UUID;
 
+// tag::entity[]
 @JmixEntity
 @Table(name = "ORDER_LINE", indexes = {
         @Index(name = "IDX_ORDER_LINE_ORDER", columnList = "ORDER_ID")
@@ -26,12 +27,15 @@ public class OrderLine {
     private Double quantity;
 
     @Column(name = "PRODUCT_ID")
-    private UUID productId;
+    private UUID productId; // <1>
 
     @JmixProperty
     @Transient
     @DependsOnProperties("productId")
-    private Product product;
+    private Product product; // <2>
+
+    // ...
+    // end::entity[]
 
     @OnDeleteInverse(DeletePolicy.CASCADE)
     @JoinColumn(name = "ORDER_ID", nullable = false)
