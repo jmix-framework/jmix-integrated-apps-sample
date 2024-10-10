@@ -1,0 +1,418 @@
+= Integrating Jmix Applications
+
+This guide provides a detailed exploration of an example designed to help you create distributed systems consisting of interconnected web applications. The example leverages the xref:rest:index.adoc[] and xref:rest-ds:index.adoc[REST DataStore] add-ons for seamless integration.
+
+Key features of the example project:
+
+- **REST API Integration**: Enables reliable communication between applications using Jmix's built-in REST capabilities.
+- **REST DataStore**: Allows applications to work with entities located in remote Jmix applications as if they were local.
+- **Distributed Data Management**: Demonstrates how to manage related data across multiple applications while maintaining data integrity.
+- **Seamless User Experience**: Provides a unified interface for users to interact with entities from different parts of the distributed system.
+
+You will learn how to set up the REST API and configure the REST DataStore, along with implementing essential components for developing a fully functional distributed system using Jmix. By the end, you'll have a comprehensive understanding of how to leverage these powerful features to build scalable and modular enterprise applications.
+
+[[requirements]]
+== Requirements
+
+To effectively use this guide, you will need the following:
+
+. xref:ROOT:setup.adoc[Setup] the development environment.
+
+. Clone the https://github.com/jmix-framework/jmix-integrated-apps-sample[sample project^]:
++
+[source]
+----
+git clone https://github.com/jmix-framework/jmix-integrated-apps-sample.git
+----
+
+[[application-overview]]
+== Application Overview
+
+The example distributed system described in this guide comprises three distinct Jmix applications, each responsible for a specific domain:
+
+1. **Products** application handles product catalog and inventory.
+2. **Customers** application manages customer information and relationships.
+3. **Orders** application processes and tracks customer orders.
+
+By utilizing Jmix's REST API and REST DataStore add-ons, these applications can communicate and share data, creating a cohesive ecosystem for managing various aspects of a business operation.
+
+The Orders application depends on Customers and Products applications:
+
+.Dependencies between applications
+image::system.svg[align="center"]
+
+Each application uses its own database. The Orders application obtains data from Customers and Products applications through their REST API.
+
+[[data-models]]
+=== Data Models
+
+Below are the data models of the applications (JPA entities are in grey, DTO entities are in blue).
+
+.Customers application data model
+image::customers.svg[align="center"]
+
+.Products application data model
+image::products.svg[align="center"]
+
+
+.Orders application data model
+image::orders.svg[align="center"]
+
+[[integration-approaches]]
+=== Integration Approaches
+
+The Orders application demonstrates two approaches to the integration:
+
+1. *Replicating data from an external application*
++
+The Orders application contains the `SimpleCustomer` JPA entity that represents the customers in the https://martinfowler.com/bliki/BoundedContext.html[bounded context^] of orders. The `Order` entity has a reference to `SimpleCustomer` and doesn't directly depend on the external application. Customers' data is aggregated and stored in `SimpleCustomer` upon request.
++
+This approach provides loose coupling between applications: users can create orders for existing customers even if the Customers application is unavailable.
+
+2. *Using cross-datastore references*
++
+The `OrderLine` JPA entity has a reference to the `Product` DTO entity which is directly loaded from the Products application using the REST DataStore.
++
+This approach leads to tighter coupling between the applications, but it is simpler as it doesn't require any special integration code.
+
+In the replication scenario, the sample also demonstrates a possible approach to selecting and returning external data by redirecting users between applications.
+
+[[setup-and-running]]
+== Setup and Running
+
+All three applications are configured to run on different ports. In order to avoid clashing of session cookies between the web applications, their hostnames must also be different. Therefore, it is assumed that the applications will be available at the following URLs:
+
+* Orders: http://localhost:8080[^]
+* Customers: http://host1:8081[^]
+* Products: http://host2:8082[^]
+
+Add the following entries to your `hosts` file to point `host1` and `host2` to `localhost`:
+
+[source]
+./etc/hosts or C:\Windows\system32\drivers\etc\hosts
+----
+127.0.0.1       host1
+127.0.0.1       host2
+----
+
+Open the root project in IntelliJ IDEA with the Jmix Studio plugin installed.
+
+Use the run/debug configurations for the Customers, Products, and Orders applications to launch them.
+
+[[understanding-application-behavior]]
+== Understanding Application Behavior
+
+Access the Orders application by navigating to http://localhost:8080[^] in your web browser and logging in as `admin` user with `admin` password.
+
+[[managing-external-data]]
+=== Managing External Data
+
+The Orders application demonstrates how to manage external data using DTO entities and REST DataStore. The Products application itself has no UI, so users can work with it only through the views of the Orders application.
+
+You can open the *Product categories (DTO)* and *Products (DTO)* views from the main menu. The *DTO* suffix here indicates that the view works with DTO entities mapped to external data.
+
+The list views provide filtering, paging and sorting of entities. The detail views allow you to create and modify entities.
+
+If you stop the Products application, the product management views will show an error notification "Connection error. 'products' service is unavailable".
+
+[[linking-external-and-local-entities]]
+=== Linking External and Local Entities
+
+* Open the *Orders* view from the main menu and click *Create*.
+
+* Fill in the *Number* and *Date* fields of the new order and leave the *Customer* field empty (we will deal with it later).
+
+* Click *Create* button to create a new order line. The *Order line* dialog will appear.
++
+.Creating OrderLine with linked Product
+image::order-line-1.png[]
+
+* The dropdown list of the *Product* field will display products provided by the Products application through the REST API. If the Products application is unavailable, you will see an error notification.
+
+* Select a product from the list. At this moment the reference to the `Product` DTO entity will be set to the `OrderLine` JPA entity. The JPA entity will be saved to the Orders database when you click *OK* in the *Order line* and *Order* detail views. It will include the identifier of the linked product.
+
+* If you open the saved order for editing, the linked product will be loaded from the Products application and shown in the data grid:
++
+.Order with OrderLines and linked Products
+image::order-line-2.png[]
+
+This scenario demonstrates the use of xref:data-model:entities.adoc#cross-data-store-ref[cross-datastore] references for linking data between applications. This approach simplifies implementation but increases dependency between the applications, as users can see order lines with products only when the external Products application is up and running.
+
+[[replicating-external-data]]
+=== Replicating External Data
+
+In this section, we'll explore another approach to integration based on replicating data between applications.
+
+In the Orders application, the `Order` entity has a reference to the `SimpleCustomer` JPA entity located in the same database. `SimpleCustomer` stores a subset of customer data sufficient for creating orders. These data are imported from the Customers application upon user request.
+
+Below we'll describe two possible ways to organize the import process.
+
+* Create a new order or edit the one created before.
+
+* Try to select a value in the *Customer* field. Initially, the dropdown is empty because the Orders database doesn't contain any `SimpleCustomer` instances.
+
+* Click the ellipsis button to open the *Simple customers* lookup view. The table is also empty, so you need to click *Import Customers...* and select one of the options:
++
+.Options for managing and importing customers
+image::import-customers-1.png[]
+
+. *Show external entities in this app*
++
+The Orders application will open its views for DTO entities mapped to the data of the Customers application. You can use these views to manage customers as you would in the Customers application.
++
+.Managing customers using DTO views in Orders application
+image::import-customers-2.png[]
++
+The *Customers (DTO)* view allows you to select a customer and its data will be imported as a new `SimpleCustomer` instance.
++
+The implementation of this import scenario is described in the <<import-using-own-views>> section.
+
+. *Open external app*
++
+This option opens the Customers application in a new browser tab. Log in as `admin`. The application will show the detail view for creating a new customer:
++
+.Creating new customer in Customers application
+image::import-customers-3.png[]
++
+After entering data into fields and clicking OK, you will be redirected back to the *Simple customers* view of the Orders application and a dialog will appear notifying you about successful import:
++
+image::import-customers-4.png[]
++
+If you click *Close and select* button in the dialog, the current tab will close and the imported customer will be selected in the order displayed in the previous tab:
++
+.Imported customer is selected in order
+image::import-customers-5.png[]
++
+The implementation of this import scenario is described in the <<import-using-redirects>> section.
+
+The first approach that uses DTO views of the Orders application for managing and selecting customers can be more convenient to users, as they stay inside the UI of a single application.
+
+The second approach, which redirects users between applications, doesn't require the implementation of customer management views in the Orders application.
+
+[[implementation-details]]
+== Implementation Details
+
+[[project-configuration]]
+=== Project Configuration
+
+The Customers and Products applications include the xref:rest:index.adoc[] and xref:authorization-server:index.adoc[] add-ons. The Customers application has a UI, while the Products application is a headless service.
+
+Both applications have an identical configuration of the Authorization Server allowing the Orders application to connect using the Client Credentials grant:
+
+[source,properties,indent=0]
+.customers/src/main/resources/application.properties
+----
+include::example$/customers/src/main/resources/application.properties[tags=auth-server-config]
+----
+
+The `system-full-access` role is assigned to the `orders-app` client for simplicity. In a real-world application it should have minimal permissions sufficient for working with entities needed for integration.
+
+The Orders application includes the xref:rest-ds:index.adoc[] add-on for accessing data of Customers and Orders applications.
+
+There are two additional REST data stores configured in the `application.properties` file of the Orders application: `customers` and `products`, along with their connection parameters:
+
+[source,properties,indent=0]
+.orders/src/main/resources/application.properties
+----
+include::example$/orders/src/main/resources/application.properties[tags=rest-data-stores]
+----
+
+[[entities]]
+=== Entities
+
+The Orders application contains DTO entities, identical by the structure to the JPA entities of the Products and Customers applications. Below is an example of the `Customer` entity in the Customers and Orders application.
+
+[source,java,indent=0]
+.Customer entity in Customers application
+----
+include::example$/customers/src/main/java/com/company/customers/entity/Customer.java[tags=entity]
+----
+
+[source,java,indent=0]
+.Customer entity in Orders application
+----
+include::example$/orders/src/main/java/com/company/orders/entity/customers/Customer.java[tags=entity]
+----
+<1> The `@Store` annotation points to the appropriate REST data store.
+<2> The `@JmixEmbedded` annotation is used in DTO entities instead of the JPA's `@Embedded`.
+<3> The `@Composition` annotation in a DTO entity should contain the `inverse` parameter to specify the inverse property instead of the JPA's `@OneToMany(mappedBy)`.
+
+In the Orders application, the `OrderLine` JPA entity contains a cross-datastore reference to the `Product` DTO entity:
+
+[source,java,indent=0]
+.OrderLine entity
+----
+include::example$/orders/src/main/java/com/company/orders/entity/OrderLine.java[tags=entity]
+----
+<1> `productId` persistent attribute stores a product ID in the Orders database.
+<2> `DataManager` automatically calls the `products` REST data store to populate the `product` transient attribute when loading `OrderLine`.
+
+[[fetch-plans]]
+=== Fetch Plans
+
+The generic REST API xref:rest:entities-api/load-entities.adoc#fetch-plans[currently supports] only named fetch plans defined in xref:data-access:fetching.adoc#creating-fetch-plans[fetch plans repository]. So the integrated applications contain the same named fetch plans and use these names when loading data.
+
+The Customers and Products applications define fetch plans for their JPA entities:
+
+[source,xml]
+.customers/src/main/resources/com/company/customers/fetch-plans.xml
+----
+include::example$/customers/src/main/resources/com/company/customers/fetch-plans.xml[]
+----
+
+[source,xml]
+.products/src/main/resources/com/company/products/fetch-plans.xml
+----
+include::example$/products/src/main/resources/com/company/products/fetch-plans.xml[]
+----
+
+The Orders application defines fetch plans with the same names for its DTO entities:
+
+[source,xml]
+.orders/src/main/resources/com/company/orders/fetch-plans.xml
+----
+include::example$/orders/src/main/resources/com/company/orders/fetch-plans.xml[]
+----
+<1> Fetch plans can contain references to entities from a different data store.
+
+[[views]]
+=== Views
+
+The Orders application contains views for managing data of external applications using DTO entities:
+
+* `Customer.list`, `Customer.detail`, `Contact.detail`
+* `ProductCategory.list`, `ProductCategory.detail`, `Product.list`, `Product.detail`
+
+These views were created using the `DTO entity list view` and `DTO entity detail view` templates provided by Studio. The views don't have delegate methods (usual for DTO views), as they are unnecessary when the entity is associated with a data store. The standard Jmix CRUD functionality operates through the `DataManager` for these entities.
+
+Data loaders do not have the `query` element, so they load all instances according to the pagination and filtering components, if they are used in the view. For example:
+
+[source,xml,indent=0]
+.orders/src/main/resources/com/company/orders/view/customers/customer/customer-list-view.xml
+----
+include::example$/orders/src/main/resources/com/company/orders/view/customers/customer/customer-list-view.xml[tags=loader]
+----
+
+However, data loaders of DTO entities support JSON queries as explained in the xref:rest-ds:index.adoc#using-query-in-view-xml[REST DataStore documentation]. You can find an example of a JSON query in `Customer.detail` view descriptor. It is used to filter dropdown list items when the user selects a reference to the `Region` entity:
+
+[source,xml,indent=0]
+.orders/src/main/resources/com/company/orders/view/customers/customer/customer-detail-view.xml
+----
+include::example$/orders/src/main/resources/com/company/orders/view/customers/customer/customer-detail-view.xml[tags=query]
+----
+
+[[import-using-own-views]]
+=== Import Using DTO Views
+
+When you import customers in the *Simple customers* view using the *Show external entities in this app*, the process is straightforward:
+
+* The `Customer` DTO list view is shown in lookup mode using the `DialogWindows` bean:
++
+[source,java,indent=0]
+.orders/src/main/java/com/company/orders/view/simplecustomer/SimpleCustomerListView.java
+----
+include::example$/orders/src/main/java/com/company/orders/view/simplecustomer/SimpleCustomerListView.java[tags=import-using-dto-views;import]
+----
+
+* The `CustomerImporter` bean loads `Customer` DTO entity from the Customers application using `DataManager` and creates or updates a `SimpleCustomer` JPA entity with data required for the Orders application:
++
+[source,java,indent=0]
+.orders/src/main/java/com/company/orders/view/simplecustomer/CustomerImporter.java
+----
+include::example$/orders/src/main/java/com/company/orders/view/simplecustomer/CustomerImporter.java[tags=import]
+----
+
+[[import-using-redirects]]
+=== Import Using Redirects
+
+When choosing *Open external app* option for importing customers in the *Simple customers* view, the process is as follows:
+
+* The Orders application opens the Customers application in a new browser tab with the path to create a new customer and with additional query parameter `redirectTo=orders.simpleCustomers`. The Customers application base URL is taken from the REST DataStore connection properties:
++
+[source,java,indent=0]
+.orders/src/main/java/com/company/orders/view/simplecustomer/SimpleCustomerListView.java
+----
+include::example$/orders/src/main/java/com/company/orders/view/simplecustomer/SimpleCustomerListView.java[tags=import-using-redirects]
+----
+
+* In this example, users need to log in to the Customers application by entering a username and password. In a real-world distributed system, the Orders and Customers applications could have a Single-Sign-On based on an external Identity Provider (for example Keycloak) and the xref:oidc:index.adoc[] add-on.
+
+* The `Customer.detail` view of the Customers application remembers the `redirectTo` parameter on opening and use it to redirect back to the Orders application after saving the new customer:
++
+[source,java,indent=0]
+.customers/src/main/java/com/company/customers/view/customer/CustomerDetailView.java
+----
+include::example$/customers/src/main/java/com/company/customers/view/customer/CustomerDetailView.java[tags=export]
+----
++
+The redirect URL is defined by the `orders.simpleCustomers.url` property:
++
+[source,properties,indent=0]
+.customers/src/main/resources/application.properties
+----
+include::example$/customers/src/main/resources/application.properties[tags=export]
+----
+
+* The Orders application opens in the same browser tab instead of the Customers with the URL pointing to the `SimpleCustomers.list` view and the `importCustomer` query parameter containing the created customer's ID:
++
+[source]
+----
+http://localhost:8080/simpleCustomers?importCustomer=59eef946-20f8-47a3-a37b-653f37e18619
+----
+
+* The `SimpleCustomers.list` view handles the URL query parameter, imports the customer by ID using the `CustomerImporter` bean and shows a dialog offering to close this browser tab and select the imported customer. If the user clicks *Close and select* in the dialog, the `SimpleCustomers.list` view sends the `SelectCustomerEvent` with the imported `SimpleCustomer` instance and closes this browser tab:
++
+[source,java,indent=0]
+.orders/src/main/java/com/company/orders/view/simplecustomer/SimpleCustomerListView.java
+----
+include::example$/orders/src/main/java/com/company/orders/view/simplecustomer/SimpleCustomerListView.java[tags=import-using-redirects-2;import]
+----
+
+* The `SimpleCustomers.list` view of the first browser tab which initiated redirects listens to `SelectCustomerEvent`. If it was open in the lookup mode to select a customer, it executes the `selectAction` to automatically select the imported instance:
++
+[source,java,indent=0]
+.orders/src/main/java/com/company/orders/view/simplecustomer/SimpleCustomerListView.java
+----
+include::example$/orders/src/main/java/com/company/orders/view/simplecustomer/SimpleCustomerListView.java[tags=import-using-redirects-3]
+----
+
+[[business-logic]]
+=== Business Logic
+
+The Products application includes a business service accessible via the generic REST API, which returns the stock quantity for a specific product:
+
+[source,java,indent=0]
+.products/src/main/java/com/company/products/service/InventoryService.java
+----
+include::example$/products/src/main/java/com/company/products/service/InventoryService.java[tags=service]
+----
+
+The Orders application invokes this service in the `OrderLine.detail` view to show the available quantity to the user.
+
+The invocation is encapsulated in the `InventoryService` bean. It uses the `RestDataStoreUtils` bean of the REST DataStore add-on which provides access to the Spring's `RestClient` to call the REST endpoint using connection and authentication parameters configured for the REST data store:
+
+[source,java,indent=0]
+.orders/src/main/java/com/company/orders/service/InventoryService.java
+----
+include::example$/orders/src/main/java/com/company/orders/service/InventoryService.java[tags=service]
+----
+
+[[exception-handling]]
+=== Exception Handling
+
+The Orders application contains a `RestDataStoreAccessException` handler that shows a notification when the Customers or Products applications are not available during an integration request:
+
+[source,java,indent=0]
+.orders/src/main/java/com/company/orders/service/InventoryService.java
+----
+include::example$/orders/src/main/java/com/company/orders/exception/RestDataStoreAccessExceptionHandler.java[tags=exception-handler]
+----
+
+[[summary]]
+== Summary
+
+This guide has equipped you with the essential knowledge and practical steps to integrate Jmix applications into a distributed system. By utilizing the xref:rest:index.adoc[] and xref:rest-ds:index.adoc[REST DataStore] add-ons, you can create a cohesive environment where multiple applications communicate effectively, ensuring seamless data management across various domains.
+
+You explored both data replication and cross-datastore references, each offering its own benefits for application interconnectivity.
+
+The guide has also demonstrated two approaches to selecting and returning external data: using DTO views for managing external entities and redirecting users between applications.
