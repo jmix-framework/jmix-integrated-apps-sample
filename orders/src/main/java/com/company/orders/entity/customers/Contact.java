@@ -1,11 +1,9 @@
 package com.company.orders.entity.customers;
 
-import io.jmix.core.DeletePolicy;
 import io.jmix.core.entity.annotation.JmixGeneratedValue;
-import io.jmix.core.entity.annotation.OnDeleteInverse;
+import io.jmix.core.entity.annotation.JmixId;
 import io.jmix.core.metamodel.annotation.JmixEntity;
 import io.jmix.core.metamodel.annotation.Store;
-import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
@@ -13,27 +11,20 @@ import java.util.UUID;
 @Store(name = "customers")
 @JmixEntity
 public class Contact {
+
     @JmixGeneratedValue
-    @Column(name = "ID", nullable = false)
-    @Id
+    @JmixId
     private UUID id;
 
-    @Column(name = "VERSION", nullable = false)
-    @Version
     private Integer version;
 
     @NotNull
-    @Column(name = "CONTACT_TYPE", length = 1)
     private String contactType;
 
-    @Column(name = "CONTACT_VALUE")
     private String contactValue;
 
-    @Column(name = "PREFERRED")
     private Boolean preferred;
-    @OnDeleteInverse(DeletePolicy.CASCADE)
-    @JoinColumn(name = "CUSTOMER_ID", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+
     private Customer customer;
 
     public Customer getCustomer() {
