@@ -4,7 +4,10 @@
       focusComponent="form">
     <data>
         <instance id="productDc"
-                  class="com.company.orders.entity.products.Product" fetchPlan="product-full">
+                  class="com.company.orders.entity.products.Product">
+            <fetchPlan extends="_base">
+                <property name="category" fetchPlan="_base"/>
+            </fetchPlan>
             <loader id="productDl"/>
         </instance>
         <collection id="productCategoriesDc" class="com.company.orders.entity.products.ProductCategory">

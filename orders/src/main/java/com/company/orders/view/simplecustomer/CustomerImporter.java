@@ -5,6 +5,7 @@ import com.company.orders.entity.customers.Address;
 import com.company.orders.entity.customers.Contact;
 import com.company.orders.entity.customers.Customer;
 import io.jmix.core.DataManager;
+import io.jmix.core.FetchPlan;
 import io.jmix.core.Id;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,11 @@ public class CustomerImporter {
 
     public SimpleCustomer importCustomer(Id<Customer> customerId) {
         Customer fullCustomer = dataManager.load(customerId)
-                .fetchPlan("customer-full")
+//                .fetchPlan("customer-full")
+                .fetchPlan(fpb -> fpb
+                        .addFetchPlan(FetchPlan.BASE)
+                        .add("region", FetchPlan.BASE)
+                        .add("contacts", FetchPlan.BASE))
                 .one();
 
         SimpleCustomer simpleCustomer = dataManager.load(SimpleCustomer.class)

@@ -1,6 +1,0 @@
-<fetchPlans xmlns="http://jmix.io/schema/core/fetch-plans">
-    <fetchPlan entity="Customer" name="customer-full" extends="_base">
-        <property name="region" fetchPlan="_base"/>
-        <property name="contacts" fetchPlan="_base"/>
-    </fetchPlan>
-</fetchPlans>

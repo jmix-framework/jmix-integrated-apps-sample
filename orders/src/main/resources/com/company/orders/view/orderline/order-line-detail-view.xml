@@ -2,15 +2,17 @@
 <view xmlns="http://jmix.io/schema/flowui/view"
       title="msg://orderLineDetailView.title"
       focusComponent="form">
+    <!-- tag::fetch-plan[] -->
     <data>
         <instance id="orderLineDc"
                   class="com.company.orders.entity.OrderLine">
             <fetchPlan extends="_base">
-                <property name="product" fetchPlan="_base"/>
+                <property name="product" fetchPlan="_base"/> <!--1-->
             </fetchPlan>
             <loader id="orderLineDl"/>
         </instance>
     </data>
+    <!-- end::fetch-plan[] -->
     <facets>
         <dataLoadCoordinator auto="true"/>
     </facets>
