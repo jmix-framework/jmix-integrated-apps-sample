@@ -1,3 +1,5 @@
+:sample-project: jmix-integrated-apps-sample
+
 = Integrating Jmix Applications
 
 This guide provides a detailed exploration of an example designed to help you create distributed systems consisting of interconnected web applications. The example leverages the xref:rest:index.adoc[] and xref:rest-ds:index.adoc[REST DataStore] add-ons for seamless integration.
@@ -18,11 +20,13 @@ To effectively use this guide, you will need the following:
 
 . xref:ROOT:setup.adoc[Setup] the development environment.
 
-. Clone the https://github.com/jmix-framework/jmix-integrated-apps-sample[sample project^]:
+. Clone the https://github.com/jmix-framework/{sample-project}[sample project^] and switch to `{page-origin-branch}` branch:
 +
-[source]
+[source,subs=attributes+]
 ----
-git clone https://github.com/jmix-framework/jmix-integrated-apps-sample.git
+git clone https://github.com/jmix-framework/{sample-project}
+cd {sample-project}
+git checkout {page-origin-branch}
 ----
 
 [[application-overview]]
