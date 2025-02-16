@@ -2,12 +2,17 @@
 <view xmlns="http://jmix.io/schema/flowui/view"
       title="msg://productListView.title"
       focusComponent="productsDataGrid">
+    <!-- tag::fetch-plan[] -->
     <data>
         <collection id="productsDc"
-                    class="com.company.orders.entity.products.Product" fetchPlan="product-full">
+                    class="com.company.orders.entity.products.Product">
+            <fetchPlan extends="_base">
+                <property name="category" fetchPlan="_base"/>
+            </fetchPlan>
             <loader id="productsDl" readOnly="true"/>
         </collection>
     </data>
+    <!-- end::fetch-plan[] -->
     <facets>
         <dataLoadCoordinator auto="true"/>
         <urlQueryParameters>

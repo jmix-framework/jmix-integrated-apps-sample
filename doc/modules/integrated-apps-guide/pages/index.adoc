@@ -254,30 +254,22 @@ include::example$/orders/src/main/java/com/company/orders/entity/OrderLine.java[
 [[fetch-plans]]
 === Fetch Plans
 
-The generic REST API xref:rest:entities-api/load-entities.adoc#fetch-plans[currently supports] only named fetch plans defined in xref:data-access:fetching.adoc#creating-fetch-plans[fetch plans repository]. So the integrated applications contain the same named fetch plans and use these names when loading data.
+Since Jmix 2.5, the generic REST API supports both named fetch plans defined in xref:data-access:fetching.adoc#creating-fetch-plans[fetch plans repository] and inline fetch plans defined in view descriptors or created programmatically. So the Orders application uses fetch plans for Customers and Products DTO entities in the same way as for local JPA entities. For example:
 
-The Customers and Products applications define fetch plans for their JPA entities:
-
-[source,xml]
-.customers/src/main/resources/com/company/customers/fetch-plans.xml
+[source,xml,indent=0]
+.orders/src/main/resources/com/company/orders/view/products/product/product-list-view.xml
 ----
-include::example$/customers/src/main/resources/com/company/customers/fetch-plans.xml[]
+include::example$/orders/src/main/resources/com/company/orders/view/products/product/product-list-view.xml[tags=fetch-plan]
 ----
 
-[source,xml]
-.products/src/main/resources/com/company/products/fetch-plans.xml
-----
-include::example$/products/src/main/resources/com/company/products/fetch-plans.xml[]
-----
+Also, fetch plans can contain references to entities from a different data store:
 
-The Orders application defines fetch plans with the same names for its DTO entities:
-
-[source,xml]
-.orders/src/main/resources/com/company/orders/fetch-plans.xml
+[source,xml,indent=0]
+.orders/src/main/resources/com/company/orders/view/orderline/order-line-detail-view.xml
 ----
-include::example$/orders/src/main/resources/com/company/orders/fetch-plans.xml[]
+include::example$/orders/src/main/resources/com/company/orders/view/orderline/order-line-detail-view.xml[tags=fetch-plan]
 ----
-<1> Fetch plans can contain references to entities from a different data store.
+<1> Reference from OrderLine JPA entity to Product DTO entity.
 
 [[views]]
 === Views

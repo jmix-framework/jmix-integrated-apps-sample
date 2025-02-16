@@ -4,8 +4,11 @@
       focusComponent="form">
     <data>
         <instance id="customerDc"
-                  class="com.company.orders.entity.customers.Customer"
-                  fetchPlan="customer-full">
+                  class="com.company.orders.entity.customers.Customer">
+            <fetchPlan extends="_base">
+                <property name="region" fetchPlan="_base"/>
+                <property name="contacts" fetchPlan="_base"/>
+            </fetchPlan>
             <loader id="customerDl"/>
             <collection id="contactsDc" property="contacts"/>
         </instance>

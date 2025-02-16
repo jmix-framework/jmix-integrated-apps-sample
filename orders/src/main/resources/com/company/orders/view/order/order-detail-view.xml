@@ -7,7 +7,9 @@
                   class="com.company.orders.entity.Order">
             <fetchPlan extends="_base">
                 <property name="customer" fetchPlan="_base"/>
-                <property name="lines" fetchPlan="orderLine-with-product"/>
+                <property name="lines" fetchPlan="_base">
+                    <property name="product" fetchPlan="_base"/>
+                </property>
             </fetchPlan>
             <loader id="orderDl"/>
             <collection id="linesDc" property="lines"/>
