@@ -23,7 +23,6 @@ public class CustomerImporter {
 
     public SimpleCustomer importCustomer(Id<Customer> customerId) {
         Customer fullCustomer = dataManager.load(customerId)
-//                .fetchPlan("customer-full")
                 .fetchPlan(fpb -> fpb
                         .addFetchPlan(FetchPlan.BASE)
                         .add("region", FetchPlan.BASE)
