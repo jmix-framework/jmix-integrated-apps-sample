@@ -84,24 +84,11 @@ In the replication scenario, the sample also demonstrates a possible approach to
 [[setup-and-running]]
 == Setup and Running
 
-All three applications are configured to run on different ports. In order to avoid clashing of session cookies between the web applications, their hostnames must also be different. Therefore, it is assumed that the applications will be available at the following URLs:
-
-* Orders: http://localhost:8080[^]
-* Customers: http://host1:8081[^]
-* Products: http://host2:8082[^]
-
-Add the following entries to your `hosts` file to point `host1` and `host2` to `localhost`:
-
-[source]
-./etc/hosts or C:\Windows\system32\drivers\etc\hosts
-----
-127.0.0.1       host1
-127.0.0.1       host2
-----
-
 Open the root project in IntelliJ IDEA with the Jmix Studio plugin installed.
 
 Use the run/debug configurations for the Customers, Products, and Orders applications to launch them.
+
+All three applications are configured to run on different ports.
 
 [[understanding-application-behavior]]
 == Understanding Application Behavior
@@ -200,6 +187,20 @@ The second approach, which redirects users between applications, doesn't require
 === Project Configuration
 
 The Customers and Products applications include the xref:rest:index.adoc[] and xref:authorization-server:index.adoc[] add-ons. The Customers application has a UI, while the Products application is a headless service.
+
+To run on specific ports and prevent cookie conflicts, the Customers and Products applications require the following properties:
+
+[source,properties,indent=0]
+.customers/src/main/resources/application.properties
+----
+include::example$/customers/src/main/resources/application.properties[tags=port]
+----
+
+[source,properties,indent=0]
+.products/src/main/resources/application.properties
+----
+include::example$/products/src/main/resources/application.properties[tags=port]
+----
 
 Both applications have an identical configuration of the Authorization Server allowing the Orders application to connect using the Client Credentials grant:
 
