@@ -384,14 +384,22 @@ The Products application includes a business service accessible via the generic 
 include::example$/products/src/main/java/com/company/products/service/InventoryService.java[tags=service]
 ----
 
-The Orders application invokes this service in the `OrderLine.detail` view to show the available quantity to the user.
-
-The invocation is encapsulated in the `InventoryService` bean. It uses the `RestDataStoreUtils` bean of the REST DataStore add-on which provides access to the Spring's `RestClient` to call the REST endpoint using connection and authentication parameters configured for the REST data store:
+The Orders application invokes this service in the `OrderLine.detail` view to show the available quantity to the user. The service is represented by an interface annotated with `@RemoteService`:
 
 [source,java,indent=0]
 .orders/src/main/java/com/company/orders/service/InventoryService.java
 ----
-include::example$/orders/src/main/java/com/company/orders/service/InventoryService.java[tags=service]
+include::example$/orders/src/main/java/com/company/orders/service/InventoryService.java[]
+----
+
+For interfaces marked with this annotation, the REST DataStore add-on generates client proxy objects that automatically serialize parameters, invoke the remote REST services, and deserialize the results.
+
+The service interface can be used in the client code as a regular singleton bean:
+
+[source,java,indent=0]
+.orders/src/main/java/com/company/orders/view/orderline/OrderLineDetailView.java
+----
+include::example$orders/src/main/java/com/company/orders/view/orderline/OrderLineDetailView.java[tags=service]
 ----
 
 [[exception-handling]]

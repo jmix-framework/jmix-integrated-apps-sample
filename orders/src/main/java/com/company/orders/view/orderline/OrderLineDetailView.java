@@ -18,9 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class OrderLineDetailView extends StandardDetailView<OrderLine> {
 
     @Autowired
-    private InventoryService inventoryService;
-    @Autowired
     private Notifications notifications;
+    // tag::service[]
+    @Autowired
+    private InventoryService inventoryService;
 
     @Subscribe(id = "availableBtn", subject = "clickListener")
     public void onAvailableBtnClick(final ClickEvent<JmixButton> event) {
@@ -30,4 +31,5 @@ public class OrderLineDetailView extends StandardDetailView<OrderLine> {
             notifications.show("Available in stock: " + inStock);
         }
     }
+    // end::service[]
 }
