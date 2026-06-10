@@ -1,28 +1,35 @@
 package com.company.orders;
 
 import com.google.common.base.Strings;
+import com.vaadin.flow.component.dependency.StyleSheet;
 import com.vaadin.flow.component.page.AppShellConfigurator;
 import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
+import com.vaadin.flow.theme.lumo.Lumo;
+import io.jmix.restds.impl.RestInvoker;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.web.client.RestClient;
 
 import javax.sql.DataSource;
+import java.nio.charset.StandardCharsets;
 
 @Push
 @Theme(value = "orders")
-@PWA(name = "Orders", shortName = "Orders")
+@PWA(name = "Orders", shortName = "Orders", offline = false)
 @SpringBootApplication
+@StyleSheet(Lumo.UTILITY_STYLESHEET)
 public class OrdersApplication implements AppShellConfigurator {
 
     @Autowired
@@ -52,5 +59,12 @@ public class OrdersApplication implements AppShellConfigurator {
                 + "http://localhost:"
                 + environment.getProperty("local.server.port")
                 + Strings.nullToEmpty(environment.getProperty("server.servlet.context-path")));
+    }
+
+    // TODO: gg, remove after platform fix
+    @Bean
+    @Primary
+    public RestClient.Builder restClientBuilder() {
+        return RestClient.builder();
     }
 }
