@@ -384,6 +384,11 @@ The Products application includes a business service accessible via the generic 
 include::example$/products/src/main/java/com/company/products/service/InventoryService.java[tags=service]
 ----
 
+[NOTE]
+====
+The `Product` instance received by the service method is not an entity loaded from the database. It contains only the attributes that were loaded in the Orders application, and it is in the new state. Use such a parameter only for reading, for example to obtain the product identifier, and don't save it. See xref:rest-ds:index.adoc#passing-entities-to-services[Passing Entities to Services] for details.
+====
+
 The Orders application invokes this service in the `OrderLine.detail` view to show the available quantity to the user. The service is represented by an interface annotated with `@RemoteService`:
 
 [source,java,indent=0]
